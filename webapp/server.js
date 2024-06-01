@@ -29,7 +29,7 @@ app.post('/upload', upload.single('audioData'), (req, res) => {
 // Socket connection
 io.on('connection', (socket) => {
     console.log('A user connected');
-    sendTranscriptChunks(socket);
+    sendTranscriptChunks_raw(socket);
 
     sendTranscriptionMetaData(socket);
 
@@ -57,9 +57,9 @@ function sendTranscriptionMetaData(socket) {
     ];
 
     // Emit the structured data to the client
-    socket.emit('transcription data', transcriptionData);
+    socket.emit('meta', transcriptionData);
 }
-function sendTranscriptChunks(socket) {
+function sendTranscriptChunks_raw(socket) {
     fs.readFile('sample_transciption.txt', 'utf8', (err, data) => {
         if (err) {
             console.error('Error reading file:', err);
@@ -76,13 +76,14 @@ function sendTranscriptChunks(socket) {
                 return;
             }
             const chunk = lines.slice(index, index + 10).join('\n');
-            socket.emit('transcript chunk', {
+            console.log('sendTranscriptChunks_raw', chunkId)
+            socket.emit('transcript_chunk', {
                 chunk_id: chunkId,
                 text: chunk
             });
             index += 10;
             chunkId++; // Increment chunkId for each new chunk
-        }, 10000); // Send every 10 seconds
+        }, 1000); // Send every 10 seconds
     });
 }
 
