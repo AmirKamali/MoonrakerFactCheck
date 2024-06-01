@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recorder</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Audio Recorder</h1>
+        <button id="recordButton" class="btn btn-primary">Record</button>
+        <ul id="transcriptions" class="list-unstyled mt-3">
+        </ul>
+    </div>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
