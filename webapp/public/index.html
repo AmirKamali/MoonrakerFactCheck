@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Recorder</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #recordButton.recording {
+            background-color: #dc3545; /* Bootstrap danger color for recording */
+            color: white;
+        }
+        #transcriptions li {
+            background-color: #f8f9fa; /* A light grey background */
+            border-bottom: 1px solid #dee2e6; /* Bootstrap styled border */
+            padding: 8px;
+            margin-bottom: 5px;
+        }
+        #transcriptions li:last-child {
+            margin-bottom: 0;
+        }
+        .transcription-block {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+}
+
+    </style>
 </head>
 <body>
     <div class="container mt-5">

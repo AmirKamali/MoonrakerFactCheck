@@ -1,47 +1,32 @@
 let socket = io();
-let recorder, gumStream, interval;
+let recorder, gumStream;
 const recordButton = document.getElementById('recordButton');
 const transcriptions = document.getElementById('transcriptions');
 
 recordButton.addEventListener('click', () => {
     if (recorder && recorder.state === "recording") {
-        // Stop recording
         recorder.stopRecording(() => {
             const blob = recorder.getBlob();
             sendData(blob);
-            gumStream.getTracks().forEach(track => track.stop()); // Stop the media stream tracks
+            gumStream.getTracks().forEach(track => track.stop());
         });
-        clearInterval(interval); // Clear the interval on stopping
         recorder = null;
         recordButton.textContent = "Record";
     } else {
-        // Start recording
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
             gumStream = stream;
             recorder = RecordRTC(stream, {
                 type: 'audio',
-                mimeType: 'audio/webm', // Depending on browser support
-                timeSlice: 10000, // On data available every 10 seconds
+                mimeType: 'audio/webm',
+                timeSlice: 10000,
                 ondataavailable: function(blob) {
                     sendData(blob);
                 }
             });
             recorder.startRecording();
             recordButton.textContent = "Listening...";
-
-            // Optionally, you can also set up the interval here if needed
-            // interval = setInterval(() => {
-            //     if (recorder) {
-            //         recorder.stopRecording(() => {
-            //             const blob = recorder.getBlob();
-            //             sendData(blob);
-            //             recorder.startRecording(); // Restart recording immediately
-            //         });
-            //     }
-            // }, 10000);
-        }).catch(err => {
-            console.error('An error occurred: ' + err);
-        });
+        }).catch(err => console.error('An error occurred: ' + err));
     }
 });
 
@@ -54,9 +39,54 @@ function sendData(blob) {
     .catch(error => console.error('Error uploading the audio chunk:', error));
 }
 
-// Handle incoming messages
-socket.on('transcript', message => {
-    let item = document.createElement('li');
-    item.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
-    transcriptions.appendChild(item);
+// Dictionary to store transcription data by chunk_id
+let transcriptionsData = {};
+
+socket.on('transcript chunk', chunk => {
+    // Append new chunk to the transcription data
+    if (!transcriptionsData[chunk.chunk_id]) {
+        transcriptionsData[chunk.chunk_id] = {
+            text: '',
+            metadata: null
+        };
+    }
+    transcriptionsData[chunk.chunk_id].text += chunk.text;
+    updateTranscriptionDisplay();
 });
+
+socket.on('transcription data', metadata => {
+    // Update transcription data with metadata
+    metadata.forEach(meta => {
+        if (transcriptionsData[meta.OriginalDetails.chunk_id]) {
+            transcriptionsData[meta.OriginalDetails.chunk_id].metadata = meta;
+        }
+    });
+    updateTranscriptionDisplay();
+});
+
+function updateTranscriptionDisplay() {
+    transcriptions.innerHTML = '';
+    Object.values(transcriptionsData).forEach(entry => {
+        let item = document.createElement('div');
+        item.classList.add('transcription-block');
+        let text = entry.text;
+        if (entry.metadata) {
+            text = highlightText(entry.text, entry.metadata.OriginalDetails.from, entry.metadata.OriginalDetails.to);
+        }
+
+        item.innerHTML = `
+            <p>${text}</p>
+            <p>Status: ${entry.metadata ? entry.metadata.Status : 'Pending'}</p>
+            <p>Summary: ${entry.metadata ? entry.metadata.summary : 'N/A'}</p>
+            <p>Citation: ${entry.metadata ? `<a href='${entry.metadata.Citation.Link}'>${entry.metadata.Citation.Summary}</a> - Source: ${entry.metadata.Citation.Source}` : 'N/A'}</p>
+        `;
+        transcriptions.appendChild(item);
+    });
+}
+
+function highlightText(text, from, to) {
+    const startText = text.substring(0, from);
+    const highlight = text.substring(from, to);
+    const endText = text.substring(to);
+    return `${startText}<span style="background-color: yellow;">${highlight}</span>${endText}`;
+}
