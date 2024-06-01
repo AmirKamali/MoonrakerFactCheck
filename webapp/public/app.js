@@ -18,7 +18,7 @@ recordButton.addEventListener('click', () => {
             gumStream = stream;
             recorder = RecordRTC(stream, {
                 type: 'audio',
-                mimeType: 'audio/webm',
+                mimeType: 'audio/wav', // Change here to ensure WAV format
                 timeSlice: 10000,
                 ondataavailable: function(blob) {
                     sendData(blob);
@@ -32,7 +32,7 @@ recordButton.addEventListener('click', () => {
 
 function sendData(blob) {
     let formData = new FormData();
-    formData.append('audioData', blob, 'chunk.wav');
+    formData.append('audioData', blob, 'chunk.wav'); // Ensure the file extension is .wav
     fetch('/upload', { method: 'POST', body: formData })
     .then(response => response.text())
     // .then(data => console.log(data))
