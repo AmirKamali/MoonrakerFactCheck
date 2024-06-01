@@ -1,11 +1,15 @@
-# Moonraker
-hack on
+## Edit this template
 
-hot dumpster full of code snippets
-- Whisper capture code
-- LangGraph code
-- LangSmith results
-- app.py sandbox
-- anyother cool ux
+## Inspiration
 
+## What it does
 
+## How we built it
+
+## Challenges we ran into
+
+## Accomplishments that we're proud of
+
+## What we learned
+
+## What's next for _____
