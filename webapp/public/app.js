@@ -5,26 +5,20 @@ const transcriptions = document.getElementById('transcriptions');
 
 recordButton.addEventListener('click', () => {
     if (recorder && recorder.state === "recording") {
-        recorder.stopRecording(() => {
-            const blob = recorder.getBlob();
-            sendData(blob);
-            gumStream.getTracks().forEach(track => track.stop());
-        });
+        recorder.stop();
         recorder = null;
+        gumStream.getTracks().forEach(track => track.stop());
         recordButton.textContent = "Record";
     } else {
         navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
             gumStream = stream;
-            recorder = RecordRTC(stream, {
-                type: 'audio',
-                mimeType: 'audio/wav', // Change here to ensure WAV format
-                timeSlice: 10000,
-                ondataavailable: function(blob) {
-                    sendData(blob);
-                }
-            });
-            recorder.startRecording();
+            recorder = new MediaStreamRecorder(stream);
+            recorder.mimeType = 'audio/wav'; // Set MIME type to WAV
+            recorder.ondataavailable = function(blob) {
+                sendData(blob);
+            };
+            recorder.start(10000); // Time slice for ondataavailable event
             recordButton.textContent = "Listening...";
         }).catch(err => console.error('An error occurred: ' + err));
     }
@@ -35,9 +29,9 @@ function sendData(blob) {
     formData.append('audioData', blob, 'chunk.wav'); // Ensure the file extension is .wav
     fetch('/upload', { method: 'POST', body: formData })
     .then(response => response.text())
-    // .then(data => console.log(data))
     .catch(error => console.error('Error uploading the audio chunk:', error));
 }
+
 
 let transcriptionsData = {}; // Stores all transcription data by chunk_id
 
