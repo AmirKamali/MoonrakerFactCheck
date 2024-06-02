@@ -23,12 +23,12 @@ def read_root():
 async def fact_check(request: AudioSubmission) -> dict:
     try:
         # Extract audio file
-        audio_file_path = await audio_path(request.chunk_id)
+        audio_file_path, chunk_id = await audio_path(request.chunk_id)
         
         # Generate transcript using Whisper
         transcript = await fetch_whisper(audio_file_path)
         
-        return {"transcript": transcript}
+        return {"transcript": transcript, "chunk_id": chunk_id}
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -51,7 +51,7 @@ async def audio_path(chunk_id) -> str:
         # If the file is not found, raise an exception
         raise FileNotFoundError(f"File with chunk_id {chunk_id} not found in directory {directory}")
     else:
-        return audio_file_path
+        return audio_file_path, chunk_id
     
         
 async def fetch_whisper(audio_file_path: str) -> str:
