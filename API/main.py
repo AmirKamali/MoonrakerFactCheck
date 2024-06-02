@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import os
 import whisper
+from Agent import agent_factcheck
 
 ABSOLUTE_PATH = "/Users/amir/Documents/ai/MoonrakerFactCheck/"
 
@@ -28,7 +29,9 @@ async def fact_check(request: AudioSubmission) -> dict:
         # Generate transcript using Whisper
         transcript = await fetch_whisper(audio_file_path)
         
-        return {"transcript": transcript, "chunk_id": chunk_id}
+        agent = agent_factcheck(transcript)
+        
+        return {"transcript": transcript, "chunk_id": chunk_id, "agent": agent}
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -58,5 +61,4 @@ async def fetch_whisper(audio_file_path: str) -> str:
     result = model.transcribe(audio_file_path, fp16=False)
     
     return result["text"]
-    
     
