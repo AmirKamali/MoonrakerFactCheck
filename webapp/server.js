@@ -13,7 +13,7 @@ const io = socketIo(server);
 const storage = multer.diskStorage({
     destination: './audio',
     filename: function(req, file, cb) {
-        cb(null, 'audio-' + Date.now() + path.extname(file.originalname));
+        cb(null,  Date.now() + path.extname(file.originalname));
     }
 });
 const upload = multer({ storage: storage });

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import os
 import whisper
 
-ABSOLUTE_PATH = "/Users/saig/Documents/Code/Hackathons/MoonrakerFactCheck/"
+ABSOLUTE_PATH = "/Users/amir/Documents/ai/MoonrakerFactCheck/"
 
 app = FastAPI()
 model = whisper.load_model("base")
@@ -39,7 +39,7 @@ async def fact_check(request: AudioSubmission) -> dict:
 async def audio_path(chunk_id) -> str:
     # Construct the expected filename
     expected_filename = f"{chunk_id}.mp3"
-    directory = os.path.join(ABSOLUTE_PATH, "API/Audio_Files/")
+    directory = os.path.join(ABSOLUTE_PATH, "webapp/audio/")
     
     audio_file_path = None
     # Asynchronously check the directory for the file
