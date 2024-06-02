@@ -38,7 +38,7 @@ async def fact_check(request: AudioSubmission) -> dict:
 
 async def audio_path(chunk_id) -> str:
     # Construct the expected filename
-    expected_filename = f"{chunk_id}.mp3"
+    expected_filename = f"{chunk_id}.wav"
     directory = os.path.join(ABSOLUTE_PATH, "webapp/audio/")
     
     audio_file_path = None
